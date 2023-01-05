@@ -1,4 +1,4 @@
-import { getCookie } from 'cookies-next';
+import { getCookie, setCookie } from 'cookies-next';
 import { GetServerSideProps } from 'next';
 import { useEffect, useState } from 'react';
 import { useAppContext } from '../../contexts/app';
@@ -15,6 +15,8 @@ import { Button } from '../../components/Button';
 import { useFormatter } from '../../libs/useFormatter';
 import { CartItem } from '../../types/CartItem';
 import { useRouter } from 'next/router';
+import { CartProductItem } from '../../components/CartProductItem';
+import { CartCookie } from '../../types/CartCookie';
 
 const Cart = (data: HomeProps) => {
   const { setToken, setUser } = useAuthContext(); 
@@ -32,6 +34,28 @@ const Cart = (data: HomeProps) => {
 
   // product control
   const [cart, setCart] = useState<CartItem[]>(data.cart)
+  const handleCartChange = (newCount: number, id: number) => {
+    const tmpCart: CartItem[] = [...cart];
+    const cartIndex = tmpCart.findIndex(item => item.product.id === id);
+    if(newCount > 0){
+      tmpCart[cartIndex].qt = newCount;
+    } else {
+      delete tmpCart[cartIndex]
+    }
+    let newCart: CartItem[] = tmpCart.filter(item => item);
+
+    setCart(newCart)
+
+    // update cookie
+    let cartCookie: CartCookie[] = [];
+    for(let i in newCart) {
+      cartCookie.push({
+        id: newCart[i].product.id,
+        qt: newCart[i].qt
+      })
+    }
+    setCookie('cart', JSON.stringify(cartCookie))
+  }
 
   // Shipping
   const [ shippingInput, SetShippingInput ] = useState('');
@@ -57,6 +81,7 @@ const Cart = (data: HomeProps) => {
   const handleFinish = () => {
     router.push(`/${data.tenant.slug}/checkout`)
   }
+
   
   return (
     <div className={styles.container}>
@@ -75,7 +100,15 @@ const Cart = (data: HomeProps) => {
       </div>
 
       <div className={styles.productsList}>
-
+        {cart.map((cartItem, index) => (
+          <CartProductItem
+            key={index}
+            color={data.tenant.mainColor}
+            quantity={cartItem.qt}
+            product={cartItem.product}
+            onChange={handleCartChange}
+          />
+        ))}
       </div>
 
       <div className={styles.shippingArea}>
