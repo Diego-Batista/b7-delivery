@@ -5,7 +5,9 @@ import { ContextType, DataType, ProviderType } from './types';
 export { useAppContext } from './hook';
 
 const initialState: DataType = {
-    tenant: null
+    tenant: null,
+    shippingAddress: null,
+    shippingPrice: 0,
 }
 
 export const AppContext = createContext<ContextType>({

@@ -17,10 +17,11 @@ import { AddressesItem } from '../../components/AddressItem';
 
 const Myaddresses = (data: HomeProps) => {
   const { setToken, setUser } = useAuthContext(); 
-  const { tenant, setTenant } = useAppContext();
+  const { tenant, setTenant, setShippingAddress, setShippingPrice } = useAppContext();
 
   const formartter = useFormatter();
   const router = useRouter();
+  const api = useApi(data.tenant.slug)
 
   useEffect(() => {
     setTenant(data.tenant);
@@ -28,20 +29,27 @@ const Myaddresses = (data: HomeProps) => {
     if(data.user) setUser(data.user);
   }, [])
 
-  const handleNewAddress = () => {
-    router.push(`/${data.tenant.slug}/newaddress`)
-  }
-
-  const handleAddressSelected = (address: Address) => {
-    console.log(`Selecionou o endereço: ${address.street}  ${address.number}`)
+  const handleAddressSelected = async (address: Address) => {
+    const price = await api.getShippingPrice(address)
+    if(price) {
+      setShippingAddress(address)
+      setShippingPrice(price)
+      router.push(`/${data.tenant.slug}/checkout`)
+    }
+    console.log(`Selecionou o endereço: ${address.street}  ${address.number} ${price}`)
+    
   }
 
   const handleAddressEdit = (id: number) => {
-    console.log(`Editando o Endereço: ${id}`)
+    router.push(`/${data.tenant.slug}/address/${id}`)
   }
 
   const handleDelete = (id: number) => {
     console.log(`Deletando o Endereço: ${id}`)
+  }
+
+  const handleNewAddress = () => {
+    router.push(`/${data.tenant.slug}/address/new`)
   }
 
   // Menu Events 

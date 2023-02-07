@@ -22,7 +22,7 @@ import { Address } from '../../types/Address';
 
 const Checkout = (data: HomeProps) => {
   const { setToken, setUser } = useAuthContext(); 
-  const { tenant, setTenant } = useAppContext();
+  const { tenant, setTenant, shippingAddress, shippingPrice} = useAppContext();
   
   
   const formartter = useFormatter();
@@ -39,8 +39,6 @@ const Checkout = (data: HomeProps) => {
   
 
   // Shipping
-  const [ shippingPrice, SetShippingPrice] = useState(0);
-  const [ shippingAddress, setShippingAddress] = useState<Address>()
   const handleChangeAddress = () => {
     router.push(`/${data.tenant.slug}/myaddresses`)
     // setShippingAddress({
